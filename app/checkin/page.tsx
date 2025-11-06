@@ -22,7 +22,7 @@ const eventOptions: Array<{
   Icon: typeof Dumbbell;
 }> = [
   {
-    type: "fitness",
+    type: "exercise",
     label: "I Exercised",
     description: "Log a workout or movement milestone.",
     Icon: Dumbbell,
@@ -68,7 +68,7 @@ export default function CheckInPage() {
       const response = await fetch("/api/generateWorldItem", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId: user.uid, eventType }),
+        body: JSON.stringify({ userId: user.uid, habitType: eventType }),
       });
 
       const payload = await response.json();
@@ -79,7 +79,10 @@ export default function CheckInPage() {
 
       setStatus({
         state: "success",
-        message: payload?.message ?? "World item generated successfully!",
+        message:
+          payload?.worldItem?.description ??
+          payload?.message ??
+          "World item generated successfully!",
       });
     } catch (error) {
       setStatus({

@@ -17,7 +17,8 @@ The app is served from [http://localhost:3000](http://localhost:3000).
 
 1. Create a Firebase project and enable **Authentication** (Email/Password and Google providers), **Cloud Firestore**, and **Cloud Storage** in the Firebase console.
 2. Copy `.env.local.example` to `.env.local` and populate the `NEXT_PUBLIC_FIREBASE_*` values from your Firebase project settings.
-3. Restart the dev server after updating environment variables.
+3. Add Firebase Admin service account credentials (`FIREBASE_ADMIN_*`) and your `OPENAI_API_KEY` so server routes can call OpenAI and upload to Storage.
+4. Restart the dev server after updating environment variables.
 
 Key exports are configured in `lib/firebase.ts`:
 
@@ -62,7 +63,13 @@ export interface WorldItemDoc {
   description: string;
   position: { x: number; y: number };
   createdAt: Timestamp;
+  habitType: "exercise" | "learning" | "sleep";
 }
 ```
 
 Use the exported `usersCollection`, `eventsCollection`, and `worldItemsCollection` helpers for type-safe reads and writes. The `worldsCollection` and `worldImageRef` utilities remain available in `lib/firebase.ts` for higher-level world management features.
+
+## World Generation API
+
+- `POST /api/generateWorldItem` accepts `{ userId, habitType }` where `habitType` is `exercise`, `learning`, or `sleep`.
+- The route generates a concise prompt via OpenAI Responses, produces a 512×512 image with OpenAI Images, uploads it to Firebase Storage, stores the resulting record in Firestore, and returns the new world item payload (including a signed image URL) to the client.

@@ -24,7 +24,7 @@ export const usersCollection = collection(db, "users").withConverter<UserDoc>(
   createConverter<UserDoc>(),
 );
 
-export type EventType = "fitness" | "learning" | "sleep";
+export type EventType = "exercise" | "learning" | "sleep";
 
 export interface EventDoc {
   userId: string;
@@ -45,6 +45,7 @@ export interface WorldItemDoc {
     y: number;
   };
   createdAt: Timestamp;
+  habitType: EventType;
 }
 
 export const worldItemsCollection = collection(db, "worldItems").withConverter<WorldItemDoc>(
