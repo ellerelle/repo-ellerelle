@@ -73,3 +73,4 @@ Use the exported `usersCollection`, `eventsCollection`, and `worldItemsCollectio
 
 - `POST /api/generateWorldItem` accepts `{ userId, habitType }` where `habitType` is `exercise`, `learning`, or `sleep`.
 - The route generates a concise prompt via OpenAI Responses, produces a 512×512 image with OpenAI Images, uploads it to Firebase Storage, stores the resulting record in Firestore, and returns the new world item payload (including a signed image URL) to the client.
+- Neighboring world placement logic lives in `lib/world.ts#getNewPosition`, ensuring each new artifact appears on an adjacent tile (4-direction grid) relative to the most recent item.

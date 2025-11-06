@@ -3,6 +3,7 @@ import OpenAI from "openai";
 import { Timestamp } from "firebase-admin/firestore";
 
 import { getAdminDb, getAdminStorage } from "@/lib/firebase-admin";
+import { getNewPosition, type WorldPosition } from "@/lib/world";
 
 export const runtime = "nodejs";
 
@@ -56,13 +57,6 @@ function buildPrompt(habit: HabitType) {
   return `You are an imaginative world builder. ${
     HABIT_TONE[habit]
   } Respond with one concise imperative prompt (max 25 words) describing the artifact to generate. Avoid mentioning humans. Example: "Generate a small magical tree with glowing leaves."`;
-}
-
-function randomPosition() {
-  return {
-    x: Number((Math.random() * 100).toFixed(2)),
-    y: Number((Math.random() * 100).toFixed(2)),
-  };
 }
 
 export async function POST(request: Request) {
@@ -124,9 +118,21 @@ export async function POST(request: Request) {
     });
 
     const createdAt = Timestamp.now();
-    const position = randomPosition();
 
     const db = getAdminDb();
+    const lastSnapshot = await db
+      .collection("worldItems")
+      .where("userId", "==", userId)
+      .orderBy("createdAt", "desc")
+      .limit(1)
+      .get();
+
+    const lastPosition = lastSnapshot.empty
+      ? undefined
+      : ((lastSnapshot.docs[0].data().position ?? null) as WorldPosition | null);
+
+    const position = getNewPosition(lastPosition);
+
     const docRef = await db.collection("worldItems").add({
       userId,
       description,
