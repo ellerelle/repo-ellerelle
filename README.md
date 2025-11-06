@@ -39,3 +39,30 @@ export const worldImageRef = (worldId: string, filename: string) =>
 - `/world` and `/checkin` routes demonstrate protected areas ready for Firestore + Storage integrations.
 
 Wrap additional client routes with the `ProtectedRoute` component to require authentication.
+
+## Firestore Schema
+
+Typed converters for each collection live in `lib/firestore.ts`:
+
+```ts
+export interface UserDoc {
+  worldState: Record<string, unknown>;
+  createdAt: Timestamp;
+}
+
+export interface EventDoc {
+  userId: string;
+  type: "fitness" | "learning" | "sleep";
+  timestamp: Timestamp;
+}
+
+export interface WorldItemDoc {
+  userId: string;
+  imageUrl: string;
+  description: string;
+  position: { x: number; y: number };
+  createdAt: Timestamp;
+}
+```
+
+Use the exported `usersCollection`, `eventsCollection`, and `worldItemsCollection` helpers for type-safe reads and writes. The `worldsCollection` and `worldImageRef` utilities remain available in `lib/firebase.ts` for higher-level world management features.
