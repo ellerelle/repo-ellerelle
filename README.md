@@ -20,6 +20,23 @@ The app is served from [http://localhost:3000](http://localhost:3000).
 3. Add Firebase Admin service account credentials (`FIREBASE_ADMIN_*`) and your `OPENAI_API_KEY` so server routes can call OpenAI and upload to Storage.
 4. Restart the dev server after updating environment variables.
 
+### Environment Variable Reference
+
+| Variable | Description |
+| --- | --- |
+| `NEXT_PUBLIC_FIREBASE_API_KEY` | Public Firebase web API key. |
+| `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN` | Auth domain (e.g., `your-project.firebaseapp.com`). |
+| `NEXT_PUBLIC_FIREBASE_PROJECT_ID` | Firebase project ID. |
+| `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET` | Firebase storage bucket (e.g., `your-project.appspot.com`). |
+| `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID` | Sender ID from Firebase console. |
+| `NEXT_PUBLIC_FIREBASE_APP_ID` | App ID from Firebase console. |
+| `OPENAI_API_KEY` | Secret key for the OpenAI API. |
+| `FIREBASE_ADMIN_PROJECT_ID` | Firebase Admin project ID (can match the public project ID). |
+| `FIREBASE_ADMIN_CLIENT_EMAIL` | Service account client email. |
+| `FIREBASE_ADMIN_PRIVATE_KEY` | Service account private key (wrap in quotes, replace newlines with `\n`). |
+| `FIREBASE_ADMIN_PRIVATE_KEY_BASE64` *(optional)* | Base64 alternative for the private key. |
+| `FIREBASE_ADMIN_STORAGE_BUCKET` | Storage bucket for Firebase Admin (typically the same as the public bucket). |
+
 Key exports are configured in `lib/firebase.ts`:
 
 ```ts
@@ -74,3 +91,15 @@ Use the exported `usersCollection`, `eventsCollection`, and `worldItemsCollectio
 - `POST /api/generateWorldItem` accepts `{ userId, habitType }` where `habitType` is `exercise`, `learning`, or `sleep`.
 - The route generates a concise prompt via OpenAI Responses, produces a 512×512 image with OpenAI Images, uploads it to Firebase Storage, stores the resulting record in Firestore, and returns the new world item payload (including a signed image URL) to the client.
 - Neighboring world placement logic lives in `lib/world.ts#getNewPosition`, ensuring each new artifact appears on an adjacent tile (4-direction grid) relative to the most recent item.
+
+## Deployment (Vercel)
+
+1. Install the Vercel CLI (`npm i -g vercel`) and authenticate with `vercel login`.
+2. From the project root run `vercel` to create the project (or connect an existing repo via the Vercel dashboard).
+3. Configure environment variables in Vercel:
+   - Via CLI: `vercel env add VARIABLE_NAME` for each of the variables listed above (repeat for the Production and Preview environments).
+   - Or via the Vercel dashboard under *Project Settings → Environment Variables*.
+4. Pull the environment variables locally with `vercel env pull .env.local` if needed.
+5. Deploy with `vercel --prod` (or rely on the Git integration for automatic deployments).
+
+> **Tip:** Ensure Firebase Firestore and Storage security rules allow the deployed origin (and service account) to read/write the required collections/buckets.
